@@ -42,12 +42,20 @@ df1 = df1.loc[(df1['coral_change_percent'] >= -100) & (df1['coral_change_percent
 lat_tup = (df1['latitude'])
 lon_tup = (df1['longitude'])
 cover_tup = (df1['coral_change_percent'])
-lat_lon_cov = {
+#SST_2020_tup = (df1['SST_2020'])
+#SST_2100_tup = (df1['SST_2100'])
+#pH_2020_tup = (df1['pH_2020'])
+#pH_2100_tup = (df1['pH_2100'])
+df2_work = {
     'lat': lat_tup,
     'lon': lon_tup,
     'cover': cover_tup
+    #'SST_2020': SST_2020_tup,
+    #'SST_2100':SST_2100_tup,
+    #'pH_2020':pH_2020_tup,
+    #'pH_2100':pH_2100_tup
 }
-df2 = pd.DataFrame(lat_lon_cov)
+df2 = pd.DataFrame(df2_work)
 
 # group by pairs of latitude and longitude and calculate the mean cover value for each pair
 df2_groups = df2.groupby([df2['lat'], df2['lon']])['cover'].mean().reset_index()
@@ -86,8 +94,36 @@ plt.title("Spatial Change in Coral Cover 2020-2100")
 ###################################
 #       FIGURE 3:FACET            #
 ###################################
+#two plots showing relationship between percent change and SST 2100 predictions and pH 2100 predictions
+fig3 = plt.figure()
+ax3 = fig3.add_subplot(2, 1, 1)
+ax3 = sns.violinplot(data=df1, x='model', y='SST_2100', 
+                        hue='model',legend=False, edgecolor='none')
+plt.xlabel("Model")
+plt.ylabel("Predicted SST (C)")
+plt.title("Predicted Sea Surface Temperatures and pH in 2100")
+
+ax4 = fig3.add_subplot(2, 1, 2)
+ax4 = sns.violinplot(data=df1, x='model', y='pH_2100', 
+                        hue='model',legend=False, edgecolor='none')
+ax4.set_ylim(7.8,8.2)
+plt.xlabel("Model")
+plt.ylabel("Predicted pH")
+
+
+
+
+
+
+
+
+
+
+
+
+
 #first make a column for the overall change in coral cover 
-df3 = raw
+df3 = raw.copy()
 df3['coral_change'] = (df3['coral_cover_2020'])-(df3['coral_cover_2100'])
 #use groupby to aggregate by model
 df3_model = df3[['coral_change','pH_2020',"pH_2100",'model','coral_cover_2020','coral_cover_2100','SST_2020','SST_2100']].groupby(df3['model'])
@@ -108,10 +144,17 @@ df3_join = pd.concat([df_2020, df_2100], axis=0)
 df3_join['year'] = ['2020','2020','2020','2020','2020','2020','2020','2020','2020','2020','2020','2020',
                 '2100','2100','2100','2100','2100','2100','2100','2100','2100','2100','2100','2100']
 
+fig3 = plt.figure()
+ax3 = fig3.add_subplot
+ax3 = sns.FacetGrid(df3_join, col="model",hue="year",legend_out=True,height=3,aspect=.75)
+ax3.map(sns.scatterplot, "SST", "coral_cover", alpha=.7)
+ax3.set_titles(col_template="Model {col_name}")
+ax3.add_legend(title="Year")
+ax3.set_axis_labels(x_var="SST (C)", y_var="Coral Cover (sq.km)", clear_inner=True)
 
-g = sns.FacetGrid(df3_join, col="year",hue="model",legend_out=True, palette="colorblind",height=3,aspect=.75)
-g.map(sns.scatterplot, "pH", "coral_cover", alpha=.7)
-g.set_titles(col_template="{col_name}")
-g.add_legend(title="Simulation")
-g.set_axis_labels(x_var="pH", y_var="Coral Cover (sq.km)", clear_inner=True)
-sns.move_legend(g,"upper right")
+ax4 = fig3.add_subplot
+ax4 = sns.FacetGrid(df3_join, col="model",hue="year",legend_out=True,height=3,aspect=.75)
+ax4.map(sns.scatterplot, "pH", "coral_cover", alpha=.7)
+ax3.set_titles(col_template="Model {col_name}")
+ax3.add_legend(title="Year")
+ax3.set_axis_labels(x_var="SST (C)", y_var="Coral Cover (sq.km)", clear_inner=True)
