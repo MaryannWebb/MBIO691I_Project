@@ -17,6 +17,12 @@ raw = pd.read_csv('../datasets/coral_forecast.csv', skiprows=1, header=0,
 
 #Create dataset to manipulate
 df1 = raw
+
+
+##################################
+#        FIGURE 1: MAP           #
+##################################
+
 #calculate percent change in coral cover
 df1['coral_change_percent'] = (
     (df1['coral_cover_2100'] - df1['coral_cover_2020']) / df1['coral_cover_2020']
@@ -28,36 +34,32 @@ df1['coral_change_percent'] = (
 lat_tup = (df1['latitude'])
 lon_tup = (df1['longitude'])
 cover_tup = (df1['coral_change_percent'])
-data = {
+lat_lon_cov = {
     'lat': lat_tup,
     'lon': lon_tup,
     'cover': cover_tup
 }
-df = pd.DataFrame(data)
+df2 = pd.DataFrame(lat_lon_cov)
 
-# group by pairs of latitude and longitude and calculate the mean spei value for each pair
-df_groups = df.groupby([df['lat'], df['lon']])['cover'].mean().reset_index()
-df_groups.columns = ['lat', 'lon', 'cover']
+# group by pairs of latitude and longitude and calculate the mean cover value for each pair
+df2_groups = df2.groupby([df2['lat'], df2['lon']])['cover'].mean().reset_index()
+df2_groups.columns = ['lat', 'lon', 'cover']
 
 # print the resulting dataframe
-print(df_groups)
+print(df2_groups)
 
 #plotting (from problem set 5)
+ax1 = plt.axes(projection=ccrs.PlateCarree())
+ax1.coastlines()
+ax1.scatter(df2_groups['lon'], df2_groups['lat'], c=df2_groups['cover'], transform=ccrs.PlateCarree(),
+        alpha=0.1)
+#ax1.set_extent([-180, 180,-40,40])
 
-# Create a figure object and 2x1 GridSpec (main figure + colour bar)
-f = plt.figure(constrained_layout=True, figsize=(8, 5)) # 8x5 figure
-gs = GridSpec(2, 1, figure=f, height_ratios=[1, 0.03])  # Thin lower axis for colour bar
+#need to do a few more things before ready 
+        #make color scale more refined
+        #try and focus map on central 30- -30 lat area
+        #create legend
 
-####################################################################
-# TOP AXIS                                                         #
-####################################################################
-
-# Create top axis using the default Plate Carree projection.
-ax1 = f.add_subplot(gs[0, 0], projection=ccrs.PlateCarree())
-
-# Plot the chlorophyll concentration with pcolormesh
-# Note: the transform kwarg sets the DATA coordinate reference system, whereas
-#       the projection kwarg (when the axis is made, above) sets the FIGURE
-#       (projected) coordinate system. The data are defined on a lon/lat grid,
-#       so the data coordinate system is Plate Carree.
-cover_map = ax1.pcolormesh(df_groups['lon'], df_groups['lat'], df_groups['cover'], transform=ccrs.PlateCarree())
+###################################
+#      FIGURE 2: pH               #
+####################################
