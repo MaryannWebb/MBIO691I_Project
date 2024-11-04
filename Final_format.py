@@ -50,9 +50,48 @@ plt.ylabel("Predicted pH")
 #based on these violin plots the final 2100 values are all pretty similar. 
     # Must be the way it tracks over the years that makes the models different but we don't have that dat
 #fig1.subplots_adjust(bottom=0.4) #make room for caption
-fig1.text(0.5, 1, 'Figure 1: Violin plots of pH and Sea Surface Temperature (SST, C) as predicted by the different models. Colors correspond with model numbers on the x axis for visual clarity. It appears that all 12 models ended with similar pH and temperatures in 2100. It is likely the difference in the models stems from how they got to these values, rather than the final pH and temperature themselves, but we do not have that detailed data.',
+fig1.text(0.5, -1, 'Figure 1: Violin plots of pH and Sea Surface Temperature (SST, C) as predicted by the different models. Colors correspond with model numbers on the x axis for visual clarity. It appears that all 12 models ended with similar pH and temperatures in 2100. It is likely the difference in the models stems from how they got to these values, rather than the final pH and temperature themselves, but we do not have that detailed data.',
      ha='center', wrap=True, fontsize = 9)
 plt.savefig("SST_pH.png",dpi=300)
+fig1.clear()
 
 #**************FIX FIGURE CAPTION^^^**********************
 
+###################################
+#      FIGURE 2: Latitude          #
+####################################
+
+#getting mean percent cover for each geographic coordinate (https://stackoverflow.com/questions/75480113/python-using-pandas-to-take-average-of-same-lon-lat-value-pairs)
+lat_tup = (df1['latitude'])
+lon_tup = (df1['longitude'])
+cover_tup = (df1['coral_change_percent'])
+
+df2_work = {
+    'lat': lat_tup,
+    'lon': lon_tup,
+    'cover': cover_tup
+}
+df2 = pd.DataFrame(df2_work)
+
+# group by pairs of latitude and longitude and calculate the mean cover value for each pair
+df2_groups = df2.groupby([df2['lat'], df2['lon']])['cover'].mean().reset_index()
+df2_groups.columns = ['lat', 'lon', 'cover']
+
+# print the resulting dataframe
+print(df2_groups)
+
+
+#A plot showing the predicted percentage change in coral cover over the 21st century (averaged across simulations) as a function of latitude.
+#fig2, ax3 = plt.subplots()
+fig2 = plt.figure()
+ax3 = sns.color_palette("rocket_r", as_cmap=True)
+ax3 = sns.scatterplot(data=df2_groups, x='lat', y='cover', hue='cover',legend=False, palette = "rocket_r", edgecolor='none')
+ax3.set_xlim(-40,40)
+plt.axhline(y=0, color='black', linestyle='--') #shows zero change in coral cover
+plt.xlabel("Latitude")
+plt.ylabel("Percent Change of Coral Cover")
+#plt.title("Spatial Change in Coral Cover 2020-2100")
+fig2.text(0.5,0.5, 'Figure 2: Compares the predicted percent change of coral cover (averaged across models) with latitude. The horizontal line at zero is where there was is no predicted change in coral cover, generally around 30 degrees latitude. Closer to the equator we see high loses of coral cover (negative percentages).',
+     ha='center', wrap=True, fontsize = 9)
+plt.savefig("lat_coral",dpi=300)
+fig2.clear()
