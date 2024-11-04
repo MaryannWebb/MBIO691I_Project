@@ -1,38 +1,47 @@
-#Packages
+# Packages
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
-#geospatial packages (Problem set 5)
-import matplotlib.ticker as mticker 
-import cartopy.crs as ccrs 
-import cartopy.feature as cfeature 
-import cmocean as cmo 
-from matplotlib.gridspec import GridSpec 
+
+# Geospatial packages (Problem set 5)
+import matplotlib.ticker as mticker
+import cartopy.crs as ccrs
+import cartopy.feature as cfeature
+import cmocean as cmo
+from matplotlib.gridspec import GridSpec
 
 
-#Read in data
-raw = pd.read_csv('../datasets/coral_forecast.csv', skiprows=1, header=0, 
-        names=['coral_cover_2020', 'coral_cover_2100','SST_2020','SST_2100','SST_seaonal','pH_2020','pH_2100','PAR','longitude','latitude','model'])
+# Read in data
+raw = pd.read_csv('../datasets/coral_forecast.csv', skiprows=1, header=0,
+                  names=['coral_cover_2020', 'coral_cover_2100', 'SST_2020', 'SST_2100', 'SST_seasonal', 
+                         'pH_2020', 'pH_2100', 'PAR', 'longitude', 'latitude', 'model'])
 
-#Create dataset to manipulate
-df1 = raw
+#data frame to manipulate
+df1 = raw.copy()
+#CALCULATING PERCENT CHANGE IN CORAL COVER
+df1['coral_cover_2020'] = pd.to_numeric(df1['coral_cover_2020'], errors='coerce')
+df1['coral_cover_2100'] = pd.to_numeric(df1['coral_cover_2100'], errors='coerce')
+        #percent change = ((new-old)/(old))*100
 
-
+df1['coral_change_percent'] = ((df1['coral_cover_2100'] - df1['coral_cover_2020']) / df1['coral_cover_2020']) * 100
+        #for some god forsaken reason some of these numbers are in the thousands. Yet the majority of them seem to have worked...
+        #I have no idea what's going on. I've tried reading in my code again, multiple ways of calculating percent cover, 
+        #checking to see if there is a pattern (e.g. maybe sneaky NAs) in one of the og coral cover columns - but I am truly 
+        #stummped why the calculations by hand work but when I apply it to the whole column certain rows just go bananas. 
+        #so for now I'm just going to exclude those rows that have an absolute value percent change in cover over 100
+#remove psycho numbers 
+df1 = df1.loc[(df1['coral_change_percent'] >= -100) & (df1['coral_change_percent'] <= 100)]
 ##################################
 #        FIGURE 1: MAP           #
 ##################################
 
-#calculate percent change in coral cover
-df1['coral_change_percent'] = (
-    (df1['coral_cover_2100'] - df1['coral_cover_2020']) / df1['coral_cover_2020']
-)
 #Figure 1: A map showing the predicted percentage change in coral cover over the 21st century, averaged across simulations.       
 
 #getting mean percent cover for each geographic coordinate (https://stackoverflow.com/questions/75480113/python-using-pandas-to-take-average-of-same-lon-lat-value-pairs)
-lat_tup = (raw['latitude'])
-lon_tup = (raw['longitude'])
-cover_tup = (raw['coral_change_percent'])
+lat_tup = (df1['latitude'])
+lon_tup = (df1['longitude'])
+cover_tup = (df1['coral_change_percent'])
 lat_lon_cov = {
     'lat': lat_tup,
     'lon': lon_tup,
@@ -47,26 +56,31 @@ df2_groups.columns = ['lat', 'lon', 'cover']
 # print the resulting dataframe
 print(df2_groups)
 
-#plotting (from problem set 5)
-ax1 = plt.axes(projection=ccrs.PlateCarree())
-ax1.coastlines()
-ax1.scatter(df2_groups['lon'], df2_groups['lat'], c=df2_groups['cover'], transform=ccrs.PlateCarree(),
-        alpha=0.1)
-
-
+#plotting (from cartopy)
+#ax1 = plt.axes(projection=ccrs.PlateCarree())
+#ax1.coastlines()
+#ax1.scatter(df2_groups['lon'], df2_groups['lat'], c=df2_groups['cover'], transform=ccrs.PlateCarree(),
+        #alpha=0.1)
 
 #need to do a few more things before ready 
         #make color scale more refined
-        #try and focus map on central 30- -30 lat area
         #create legend
 
 ###################################
 #      FIGURE 2: pH               #
 ####################################
 #A plot showing the predicted percentage change in coral cover over the 21st century (averaged across simulations) as a function of latitude.
+fig, ax2 = plt.subplots()
+sns.color_palette("rocket_r", as_cmap=True)
+ax2 = sns.scatterplot(data=df2_groups, x='lat', y='cover', hue='cover',legend=False, palette = "rocket_r", edgecolor='none')
+ax2.set_xlim(-40,40)
+plt.axhline(y=0, color='black', linestyle='--')
+plt.xlabel("Latitude")
+plt.ylabel("Percent Change of Coral Cover")
+plt.title("Spatial Change in Coral Cover 2020-2100")
 
-sns.set_theme(style="whitegrid")
-sns.scatterplot(data=df2_groups, x='lat', y='cover')
+
+
 
 
 ###################################
