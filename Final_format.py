@@ -95,3 +95,37 @@ fig2.text(0.5,0.5, 'Figure 2: Compares the predicted percent change of coral cov
      ha='center', wrap=True, fontsize = 9)
 plt.savefig("lat_coral",dpi=300)
 fig2.clear()
+
+
+##################################
+#        FIGURE 3: MAP           #
+##################################
+
+#Figure 3: A map showing the predicted percentage change in coral cover over the 21st century, averaged across simulations.
+#plotting (from cartopy)
+import cartopy.crs as ccrs
+import matplotlib.ticker as mticker
+from cartopy.mpl.ticker import (LongitudeFormatter, LatitudeFormatter,
+                                LatitudeLocator)
+from cartopy.mpl.gridliner import Gridliner
+
+ax4 = plt.axes(projection=ccrs.PlateCarree())
+ax4.coastlines()
+ax4.set_extent([-180, 180, -90, 90], crs=ccrs.PlateCarree(central_longitude=-157))
+gl = ax4.gridlines(crs=ccrs.PlateCarree(), draw_labels=True,
+                  linewidth=2, color='gray', alpha=0.5, linestyle='--')
+gl.top_labels = False
+gl.left_labels = False
+gl.xlines = False
+gl.ylabel_style = {'size': 10, 'color': 'gray'}
+ax4.scatter(df2_groups['lon'], df2_groups['lat'], c=df2_groups['cover'],cmap = 'PuOr', 
+            transform=ccrs.PlateCarree(), alpha=0.05)
+
+plt.savefig("map",dpi=300)
+
+# Clear the current figure
+plt.clf()  # Clears the current figure
+plt.cla()  # Clears the current axes
+plt.close()  # Closes the current figure window
+
+
