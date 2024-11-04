@@ -105,22 +105,30 @@ fig2.clear()
 #plotting (from cartopy)
 import cartopy.crs as ccrs
 import matplotlib.ticker as mticker
-from cartopy.mpl.ticker import (LongitudeFormatter, LatitudeFormatter,
-                                LatitudeLocator)
 from cartopy.mpl.gridliner import Gridliner
+import cartopy.feature as cfeature
+from matplotlib.gridspec import GridSpec
 
-ax4 = plt.axes(projection=ccrs.PlateCarree())
-ax4.coastlines()
-ax4.set_extent([-180, 180, -90, 90], crs=ccrs.PlateCarree(central_longitude=-157))
+fig3 = plt.figure()
+ax4 = fig3.add_subplot(1, 1, 1, projection=ccrs.PlateCarree())
+ax4.set_extent([-180, 180, -50, 50], crs=ccrs.PlateCarree(central_longitude=-157))
+ax4.coastlines('110m')
+scatter_4 = ax4.scatter(df2_groups['lon'], df2_groups['lat'], c=df2_groups['cover'],cmap = 'viridis', 
+            transform=ccrs.PlateCarree(), marker="x")
+#color bar
+cbar = fig3.colorbar(scatter_4, orientation='horizontal')
+cbar.set_label('Percent change coral cover')
+#axis ticks and labels 
 gl = ax4.gridlines(crs=ccrs.PlateCarree(), draw_labels=True,
                   linewidth=2, color='gray', alpha=0.5, linestyle='--')
-gl.top_labels = False
 gl.left_labels = False
 gl.xlines = False
-gl.ylabel_style = {'size': 10, 'color': 'gray'}
-ax4.scatter(df2_groups['lon'], df2_groups['lat'], c=df2_groups['cover'],cmap = 'PuOr', 
-            transform=ccrs.PlateCarree(), alpha=0.05)
+gl.top_labels = False
+gl.ylocator = mticker.FixedLocator([-30, 0, 30])
+gl.ylabel_style = {'size': 10, 'color': 'black'}
 
+fig3.text(0.5,0.5, 'Figure 3: Map depicting what percent change in coral cover is expected between 30 degrees South and North of the equator. Dark purple represents a loss of 100% coral cover. Yellow means a gain in coral cover, while teal shows areas with zero predicted change in cover.',
+     ha='center', wrap=True, fontsize = 9)
 plt.savefig("map",dpi=300)
 
 # Clear the current figure
