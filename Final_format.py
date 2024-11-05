@@ -32,28 +32,27 @@ df1 = df1.loc[(df1['coral_change_percent'] >= -100) & (df1['coral_change_percent
 #Check out how the model compare to one another in terms of their 2100 predictors. How do they vary? Is one more intense than another?
 #Make two plots showing relationship between percent change and SST 2100 predictions and pH 2100 predictions
 fig1 = plt.figure()
- #make room for caption
 ax1 = fig1.add_subplot(2, 1, 1)
 ax1 = sns.violinplot(data=df1, x='model', y='SST_2100', 
                         hue='model',legend=False, edgecolor='none')
 plt.xlabel("Model")
 plt.ylabel("Predicted SST (C)")
-#plt.title("Predicted Sea Surface Temperatures and pH in 2100")
+plt.title("Predicted Sea Surface Temperatures and pH in 2100")
 
-ax2 = fig1.add_subplot(2, 1, 2)
+ax2 = fig1.add_subplot(2, 1, 2) #adding second plot with pH
 ax2 = sns.violinplot(data=df1, x='model', y='pH_2100', 
                         hue='model',legend=False, edgecolor='none')
 ax2.set_ylim(7.8,8.1)
-plt.xlabel("Model")
+plt.xlabel("")
 plt.ylabel("Predicted pH")
-
+fig1.text(0.5, -0.03, 'Figure 1: Violin plots of pH and Sea Surface Temperature (SST, C) as predicted by the different models. Colors correspond with model numbers on the x axis for visual clarity.',
+     ha='center', wrap=True, fontsize = 9)
 #based on these violin plots the final 2100 values are all pretty similar. 
     # Must be the way it tracks over the years that makes the models different but we don't have that dat
 #fig1.subplots_adjust(bottom=0.4) #make room for caption
-fig1.text(0.5, -1, 'Figure 1: Violin plots of pH and Sea Surface Temperature (SST, C) as predicted by the different models. Colors correspond with model numbers on the x axis for visual clarity. It appears that all 12 models ended with similar pH and temperatures in 2100. It is likely the difference in the models stems from how they got to these values, rather than the final pH and temperature themselves, but we do not have that detailed data.',
-     ha='center', wrap=True, fontsize = 9)
+
 plt.savefig("SST_pH.png",dpi=300)
-fig1.clear()
+fig1.clear() #wipes plotting area clean for next figure construction
 
 #**************FIX FIGURE CAPTION^^^**********************
 
@@ -90,9 +89,10 @@ ax3.set_xlim(-40,40)
 plt.axhline(y=0, color='black', linestyle='--') #shows zero change in coral cover
 plt.xlabel("Latitude")
 plt.ylabel("Percent Change of Coral Cover")
-#plt.title("Spatial Change in Coral Cover 2020-2100")
-fig2.text(0.5,0.5, 'Figure 2: Compares the predicted percent change of coral cover (averaged across models) with latitude. The horizontal line at zero is where there was is no predicted change in coral cover, generally around 30 degrees latitude. Closer to the equator we see high loses of coral cover (negative percentages).',
+plt.title("Spatial Change in Coral Cover 2020-2100")
+fig2.text(0.5,-0.09, 'Figure 2: Compares the predicted percent change of coral cover (averaged across models) with latitude. Color coresponds to percent change in coral cover with light orange representing high percentage of loss and dark purple for increasing cover. The horizontal line at zero is where there was no predicted change in coral cover, generally around 30 degrees latitude. Closer to the equator we see high loses of coral cover (negative percentages).',
      ha='center', wrap=True, fontsize = 9)
+
 plt.savefig("lat_coral",dpi=300)
 fig2.clear()
 
@@ -126,9 +126,9 @@ gl.xlines = False
 gl.top_labels = False
 gl.ylocator = mticker.FixedLocator([-30, 0, 30])
 gl.ylabel_style = {'size': 10, 'color': 'black'}
-
-fig3.text(0.5,0.5, 'Figure 3: Map depicting what percent change in coral cover is expected between 30 degrees South and North of the equator. Dark purple represents a loss of 100% coral cover. Yellow means a gain in coral cover, while teal shows areas with zero predicted change in cover.',
+fig3.text(0.5,-0.03, 'Figure 3: Map depicting what percent change in coral cover is expected between 30 degrees South and North of the equator. Dark purple represents a loss of 100% coral cover. Yellow means a gain in coral cover, while teal shows areas with zero predicted change in cover.',
      ha='center', wrap=True, fontsize = 9)
+plt.title("Predicted change in global coral cover")
 plt.savefig("map",dpi=300)
 
 # Clear the current figure
